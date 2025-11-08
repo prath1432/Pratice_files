@@ -1,0 +1,15 @@
+[Unit]
+Description=SOC Automation tailer
+After=network.target
+
+[Service]
+User=youruser
+Group=youruser
+Environment=PATH=/home/youruser/soc-automation/.venv/bin:/usr/bin:/bin
+WorkingDirectory=/home/youruser/soc-automation
+ExecStart=/home/youruser/soc-automation/.venv/bin/python /home/youruser/soc-automation/soc_automation.py
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

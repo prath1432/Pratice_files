@@ -1,0 +1,19 @@
+import openai
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
+def ai_score_alert(alert):
+    prompt = f"""You are a security triage assistant. Rate the following alert from 0.0 (benign) to 1.0 (critical).
+Alert JSON:
+{json.dumps(alert, indent=2)}
+Return a single float."""
+    resp = openai.ChatCompletion.create(
+        model="gpt-4o-mini", # example placeholder — replace as needed
+        messages=[{"role":"user","content":prompt}],
+        max_tokens=30
+    )
+    txt = resp['choices'][0]['message']['content'].strip()
+    try:
+        score = float(txt.split()[0])
+    except:
+        score = 0.0
+    return max(0.0, min(1.0, score))
