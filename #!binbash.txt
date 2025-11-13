@@ -1,0 +1,19 @@
+#!/bin/bash
+# Wazuh Active Response - Block Malicious URL
+# Triggered when VirusTotal flags a URL as malicious
+
+read INPUT_JSON
+URL=$(echo "$INPUT_JSON" | jq -r '.parameters.alert.data.virustotal.url')
+
+if [[ "$URL" != "null" ]]; then
+    DOMAIN=$(echo "$URL" | awk -F/ '{print $3}')
+    IP=$(getent ahosts "$DOMAIN" | awk '/STREAM/ {print $1; exit}')
+
+    if [ -n "$IP" ]; then
+        echo "$(date) - Blocking malicious URL $URL ($IP)" >> /var/ossec/logs/active-responses.log
+        iptables -A OUTPUT -d "$IP" -j DROP
+    else
+        echo "$(date) - Could not resolve domain for $URL" >> /var/ossec/logs/active-responses.log
+    fi
+fi
+exit 0
